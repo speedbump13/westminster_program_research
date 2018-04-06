@@ -1,0 +1,115 @@
+---
+title: "New Program Market Analysis"
+author: "Ryan Lewis"
+date: "3/30/2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+
+<!---Load libraries--->
+```{r warning=FALSE}
+library(readxl)
+library(dplyr)
+library(stringr)
+```
+
+
+<!---Define functions--->
+```{r echo=FALSE}
+percent_change <- function(num1, num2)  {
+  return((num2-num1)/num1*100)
+}
+
+```
+
+
+Questions to answer:
+
+* What programs or certificates would adult learners be interested in?
++ What degrees/certificates have seen large or increasing numbers of completers
++ What professions contain high numbers of adult learners without degrees?
++ What professions are likely to have adult learners that need certificates to demonstrate continuing education/self-improvement?
++ What degrees or certificates might be interesting to those who are looking for self-fulfillment?
+
+There is an assumption that the programs will be online.
+
+## Degree Completion
+Information about degree completion was obtain through The Integrated Postsecondary Education Data System (IPEDS) from https://nces.ed.gov/ipeds/use-the-data/download-access-database.
+
+*Questions:
++ What trends exist in degrees/certifictes granted (C2016A)? This will give us an idea of what is growing.
++ What programs are offered and in what format (C2016DEP)?
++ What are local competitors doing in those areas?
++ What does the online/on-campus landscape look like?
+
+<!--- load IPED completion data --->
+```{R}
+#IPEDS_2014 <= read.csv("~/market_research/IPEDS/C2014_A.txt", header = TRUE)
+#IPEDS_2015 <= read.csv("~/market_research/IPEDS/C2015_A.txt", header = TRUE)
+IPEDS_2016 <= read.csv("~/market_research/IPEDS/C2016_A.txt", header = TRUE)
+
+```
+
+
+## Labor Market
+Using the occupational employment statistic (oes) data from the Bureau of Labor Statistics (https://www.bls.gov/oes/tables.htm), we examine trends in both the Utah labor market and national labor market from 2014 to 2017.
+
+<!--- load state data--->
+```{r echo=FALSE, warning=FALSE}
+
+oes_2014_state <- read_excel("~/market_research/OES/state_M2014_dl.xlsx")
+oes_2014_state$YEAR <- "2014"
+
+
+oes_2015_state <- read_excel("~/market_research/OES/state_M2015_dl.xlsx")
+oes_2015_state$YEAR <- "2015"
+
+oes_2016_state <- read_excel("~/market_research/OES/state_M2016_dl.xlsx")
+oes_2016_state$YEAR <- "2016"
+
+oes_2017_state <- read_excel("~/market_research/OES/state_M2017_dl.xlsx")
+oes_2017_state$YEAR <- "2017"
+
+oes_state <- bind_rows(oes_2014_state,oes_2015_state,oes_2016_state,oes_2017_state)
+oes_state$TOT_EMP <- as.numeric(oes_state$TOT_EMP)
+oes_utah <- filter(oes_state,STATE=="Utah")
+
+```
+
+<!---load national data--->
+```{r echo=FALSE, warning=FALSE}
+oes_2014_national <- read_excel("~/market_research/OES/national_M2014_dl.xlsx")
+oes_2014_national$YEAR <- "2014"
+
+oes_2015_national <- read_excel("~/market_research/OES/national_M2015_dl.xlsx")
+oes_2015_national$YEAR <- "2015"
+
+oes_2016_national <- read_excel("~/market_research/OES/national_M2016_dl.xlsx")
+oes_2016_national$YEAR <- "2016"
+
+oes_2017_national <- read_excel("~/market_research/OES/national_M2017_dl.xlsx")
+oes_2017_national$YEAR <- "2017"
+
+oes_national <- bind_rows(oes_2014_national,oes_2015_national,oes_2016_national,oes_2017_national)
+oes_national$TOT_EMP <- as.numeric(oes_national$TOT_EMP)
+```
+
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
