@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1523052678614.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3550316055",
+    "id" : "F3DC8690",
+    "lastKnownWriteTime" : 1523052698,
+    "last_content_update" : 1523052698478,
+    "path" : "~/R/westminster_program_research/OES_data.R",
+    "project_path" : "OES_data.R",
+    "properties" : {
+        "cursorPosition" : "192,0",
+        "scrollLine" : "162",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
