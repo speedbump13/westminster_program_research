@@ -1,2 +1,2 @@
 # westminster_program_research
-Looks at market and educational data to determine what program may be a fit
+Because of the size of the data file, they are ignored on GIT. These will have to be manually copied.
