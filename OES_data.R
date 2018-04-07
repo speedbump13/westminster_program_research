@@ -22,7 +22,7 @@ percent_change <- function(num1, num2)  {
 
 # import state OES data and add the year to the end
 
-oes_2014_state <- read_excel("~/R/westminster_program_research/OES/state_M2014_dl.xlsx", 
+oes_2014_state <- read_excel("~/westminster_program_research/OES/state_M2014_dl.xlsx", 
                              col_types = c("text", "text", "text", 
                                            "text", "text", "text", "numeric", 
                                            "numeric", "numeric", "numeric", "numeric", "numeric", 
@@ -34,7 +34,7 @@ oes_2014_state <- read_excel("~/R/westminster_program_research/OES/state_M2014_d
 oes_2014_state$YEAR <- "2014"
 
 
-oes_2015_state <- read_excel("~/R/westminster_program_research/OES/state_M2015_dl.xlsx", 
+oes_2015_state <- read_excel("~/westminster_program_research/OES/state_M2015_dl.xlsx", 
                              col_types = c("text", "text", "text", 
                                            "text", "text", "text", "numeric", 
                                            "numeric", "numeric", "numeric", "numeric", "numeric", 
@@ -45,7 +45,7 @@ oes_2015_state <- read_excel("~/R/westminster_program_research/OES/state_M2015_d
 
 oes_2015_state$YEAR <- "2015"
 
-oes_2016_state <- read_excel("~/R/westminster_program_research/OES/state_M2016_dl.xlsx", 
+oes_2016_state <- read_excel("~/westminster_program_research/OES/state_M2016_dl.xlsx", 
                              col_types = c("text", "text", "text", 
                                            "text", "text", "text", "numeric", 
                                            "numeric", "numeric", "numeric", "numeric", "numeric", 
@@ -55,7 +55,7 @@ oes_2016_state <- read_excel("~/R/westminster_program_research/OES/state_M2016_d
 
 oes_2016_state$YEAR <- "2016"
 
-oes_2017_state <- read_excel("~/R/westminster_program_research/OES/state_M2017_dl.xlsx", 
+oes_2017_state <- read_excel("~/westminster_program_research/OES/state_M2017_dl.xlsx", 
                              col_types = c("text", "text", "text", 
                                            "text", "text", "text", "numeric", 
                                            "numeric", "numeric", "numeric", "numeric", "numeric", 
@@ -74,7 +74,7 @@ oes_utah <- filter(oes_state,STATE=="Utah")
 
 # import national Occupational Employment Statistics (OES) data and add the year to the end
 
-oes_2014_national <- read_excel("~/R/westminster_program_research/OES/national_M2014_dl.xlsx", 
+oes_2014_national <- read_excel("~/westminster_program_research/OES/national_M2014_dl.xlsx", 
                                 col_types = c("text", "text", "text", 
                                               "numeric", "numeric", "numeric", "numeric", 
                                               "numeric", "numeric", "numeric", "numeric", 
@@ -84,7 +84,7 @@ oes_2014_national <- read_excel("~/R/westminster_program_research/OES/national_M
 oes_2014_national$YEAR <- "2014"
 
 
-oes_2015_national <- read_excel("~/R/westminster_program_research/OES/national_M2015_dl.xlsx", 
+oes_2015_national <- read_excel("~/westminster_program_research/OES/national_M2015_dl.xlsx", 
                                 col_types = c("text", "text", "text", 
                                               "numeric", "numeric", "numeric", "numeric", 
                                               "numeric", "numeric", "numeric", "numeric", 
@@ -94,7 +94,7 @@ oes_2015_national <- read_excel("~/R/westminster_program_research/OES/national_M
 oes_2015_national$YEAR <- "2015"
 
 
-oes_2016_national <- read_excel("~/R/westminster_program_research/OES/national_M2016_dl.xlsx", 
+oes_2016_national <- read_excel("~/westminster_program_research/OES/national_M2016_dl.xlsx", 
                                 col_types = c("text", "text", "text", 
                                               "numeric", "numeric", "numeric", "numeric", 
                                               "numeric", "numeric", "numeric", "numeric", 
@@ -104,7 +104,7 @@ oes_2016_national <- read_excel("~/R/westminster_program_research/OES/national_M
 oes_2016_national$YEAR <- "2016"
 
 
-oes_2017_national <- read_excel("~/R/westminster_program_research/OES/national_M2017_dl.xlsx", 
+oes_2017_national <- read_excel("~/westminster_program_research/OES/national_M2017_dl.xlsx", 
                                 col_types = c("text", "text", "text", 
                                               "numeric", "numeric", "numeric", "numeric", 
                                               "numeric", "numeric", "numeric", "numeric", 
