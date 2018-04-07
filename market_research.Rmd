@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 <!---Load libraries--->
-```{r warning=FALSE}
+```{r load_libraries, warning=FALSE}
 library(readxl)
 library(dplyr)
 library(stringr)
@@ -20,7 +20,7 @@ library(stringr)
 
 
 <!---Define functions--->
-```{r echo=FALSE}
+```{r functions}
 percent_change <- function(num1, num2)  {
   return((num2-num1)/num1*100)
 }
@@ -41,6 +41,8 @@ There is an assumption that the programs will be online.
 ## Degree Completion
 Information about degree completion was obtain through The Integrated Postsecondary Education Data System (IPEDS) from https://nces.ed.gov/ipeds/use-the-data/download-access-database.
 
+http://bluechipsolutions.com/BI_University/CIP_Codes_Definition_and_Link_to_Download_to_Excel_or_Access.htm
+
 *Questions:
 + What trends exist in degrees/certifictes granted (C2016A)? This will give us an idea of what is growing.
 + What programs are offered and in what format (C2016DEP)?
@@ -48,18 +50,30 @@ Information about degree completion was obtain through The Integrated Postsecond
 + What does the online/on-campus landscape look like?
 
 <!--- load IPED completion data --->
-```{R}
-#IPEDS_2014 <= read.csv("~/market_research/IPEDS/C2014_A.txt", header = TRUE)
-#IPEDS_2015 <= read.csv("~/market_research/IPEDS/C2015_A.txt", header = TRUE)
-IPEDS_2016 <= read.csv("~/market_research/IPEDS/C2016_A.txt", header = TRUE)
+```{R Program Completion}
+#IPEDS_2014 <- read.csv("~/westminster_program_research/IPEDS/C2014_A.txt", header = TRUE)
+#IPEDS_2015 <- read.csv("~/westminster_program_research/IPEDS/C2015_A.txt", header = TRUE)
+IPEDS_2016 <- read.csv("~/westminster_program_research/IPEDS/C2016_A.txt", header = TRUE)
+IPEDS_2016$Year <- "2016"
+
+prog_completion <- IPEDS_2016 %>% select("UNITID","CIPCODE","MAJORNUM","CIPCODE","AWLEVEL","CTOTALT")
+prog_top_completed <- prog_completion %>%
+  group_by(CIPCODE) %>%
+  summarise(total = sum(CTOTALT)) %>%
+  top_n(20, total) %>%
+  arrange(desc(total)) %>%
+  View()
+
 
 ```
+
 
 
 ## Labor Market
 Using the occupational employment statistic (oes) data from the Bureau of Labor Statistics (https://www.bls.gov/oes/tables.htm), we examine trends in both the Utah labor market and national labor market from 2014 to 2017.
 
 <!--- load state data--->
+<!---
 ```{r echo=FALSE, warning=FALSE}
 
 oes_2014_state <- read_excel("~/market_research/OES/state_M2014_dl.xlsx")
@@ -80,8 +94,10 @@ oes_state$TOT_EMP <- as.numeric(oes_state$TOT_EMP)
 oes_utah <- filter(oes_state,STATE=="Utah")
 
 ```
+--->
 
 <!---load national data--->
+<!---
 ```{r echo=FALSE, warning=FALSE}
 oes_2014_national <- read_excel("~/market_research/OES/national_M2014_dl.xlsx")
 oes_2014_national$YEAR <- "2014"
@@ -113,3 +129,4 @@ plot(pressure)
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+--->
