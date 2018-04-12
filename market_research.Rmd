@@ -38,6 +38,32 @@ Questions to answer:
 
 There is an assumption that the programs will be online.
 
+<!---
+Table list for IPEDS:
+  HD2014: Directory information
+  IC2014: Program and award level offerings
+  IC2014_AY: Student charges for year
+  EF2014A_DIST: Distance education status and level of students
+  C2014_A: Awards/degrees conferred by program (6-digit CIP code), award level
+  C2014_C: Number of students receiving awards/degrees, by award level
+  C2014DEP: Number of programs offered and number of programs offered via distance 
+  education
+--->
+
+```{R Institutions}
+Institutions2016 <- read.csv("~/westminster_program_research/IPEDS/HD2016.txt", header = TRUE)
+Institutions2016 <- select(Institutions2016, "INSTNM","ADDR","CITY","STABBR","ZIP","FIPS","OBEREG","WEBADDR","NPRICURL","OPEID","OPEFLAG")
+Institutions2016_Utah <- filter(Institutions2016, STABBR=="UT")
+
+```
+
+  
+<!--- Map IPED and OES data --->
+
+<!--- Define state and local institutions --->
+
+
+
 ## Degree Completion
 Information about degree completion was obtain through The Integrated Postsecondary Education Data System (IPEDS) from https://nces.ed.gov/ipeds/use-the-data/download-access-database.
 
