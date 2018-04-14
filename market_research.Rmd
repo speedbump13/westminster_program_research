@@ -51,9 +51,14 @@ Table list for IPEDS:
 --->
 
 ```{R Institutions}
-Institutions2016 <- read.csv("~/westminster_program_research/IPEDS/HD2016.txt", header = TRUE)
-Institutions2016 <- select(Institutions2016, "INSTNM","ADDR","CITY","STABBR","ZIP","FIPS","OBEREG","WEBADDR","NPRICURL","OPEID","OPEFLAG")
-Institutions2016_Utah <- filter(Institutions2016, STABBR=="UT")
+Institutions_2016 <- read.csv("~/westminster_program_research/IPEDS/HD2016.txt", header = TRUE)
+
+# Create seperate lists for closed and open institutions. Closed institutuions have a date value in the CLOSEDAT field so searching for a "/" is a good way to distinguish between the two.
+closed_institutions_2016 <- Institutions2016 %>% filter(str_detect(CLOSEDAT,"/"))
+open_Institutions_2016 <- anti_join(Institutions2016,closed_institutions_2016, by = "UNITID")
+
+#Institutions2016 <- select(Institutions2016, "INSTNM","ADDR","CITY","STABBR","ZIP","FIPS","OBEREG","WEBADDR","NPRICURL","OPEID","OPEFLAG")
+#Institutions2016_Utah <- filter(Institutions2016, STABBR=="UT")
 
 ```
 
