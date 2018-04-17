@@ -50,17 +50,67 @@ Table list for IPEDS:
   education
 --->
 
-```{R Institutions}
-Institutions_2016 <- read.csv("~/westminster_program_research/IPEDS/HD2016.txt", header = TRUE)
+```{R Target Markets}
+# Vector of state(s)
+market_state <- c("UT")
+
+# Vector of IPED UNITID(s) for peer institution(s)
+market_peer_inst <- c(180106,209065)
+```
+
+```{R Institution Characteristics}
+
+institution_level <- c("4 year or more","2 to 4 year","less than 2 year","unkown")
+institution_type <- c("Public","Private not-for profit","Private for-profit","not available")
+institution_highestlevel <- c("Award of less than one academic year","At least 1, but less than 2 academic yrs","Associate's degree","At least 2, but less than 4 academic yrs","Bachelor's degree","Postbaccalaureate certificate","Master's degree","Post-master's certificate","Doctor's degree","Not applicable, first-professional only","{Not available}")
+institution_sector <- c("Administrative Unit","Public, 4-year or above","Private not-for-profit, 4-year or above","Private for-profit, 4-year or above","Public, 2-year","Private not-for-profit, 2-year","Private for-profit, 2-year","Public, less-than 2-year","Private not-for-profit, less-than 2-year","Private for-profit, less-than 2-year","Sector unknown (not active)")
+institution_UG <- c("Undergraduate degree or certificate offering","No undergraduate offering","Not available")
+institution_GR <- c("Graduate degree or certificate offering","No graduate offering","Not available")
+institution_highestGR <- c("Doctor's degree - research/scholarship and professional practice","Doctor's degree - research/scholarship","Doctor's degree -  professional practice","Doctor's degree - other","Master's degree","Bachelor's degree","Associate's degree","Non-degree granting","Not available")
+institution_degreegrantingstatus <- c("Degree-granting","Nondegree-granting, primarily postsecondary","Not available")
+
+institution_columns <- c("UNITID","INSTNM","ADDR","CITY","STABBR","ZIP","FIPS","OBEREG","WEBADDR","SECTOR","ICLEVEL","CONTROL","HLOFFER","UGOFFER","GROFFER","HDEGOFR1","DEGGRANT","CLOSEDAT")
+
+```
+
+
+```{R Institutions 2016}
+institutions_2016 <- read.csv("~/westminster_program_research/IPEDS/HD2016.txt", header = TRUE)
+
+# Select only needed columns
+institutions_2016 <- select(institutions_2016, one_of(institution_columns))
+
+# Factorize key variables
+
+#institutions_2016$CONTROL1 <- recode_factor(institutions_2016$CONTROL, `1` = "Public", `2` = "Private not-for profit", `3` = "Private for-profit", `-3` = "not #available")
+institutions_2016$CONTROL <- factor(institutions_2016$CONTROL) %>% plyr::mapvalues(from = c("1","2","3","-3"), to = institution_type, warn_missing = FALSE )
+institutions_2016$ICLEVEL <- factor(institutions_2016$ICLEVEL) %>% plyr::mapvalues(from = c("1","2","3","-3"), to = institution_level, warn_missing = FALSE )
+institutions_2016$SECTOR <- factor(institutions_2016$SECTOR) %>% plyr::mapvalues(from = c("0","1","2","3","4","5","6","7","8","9","99"), to = institution_sector, warn_missing = FALSE )
+institutions_2016$HLOFFER <- factor(institutions_2016$HLOFFER) %>% plyr::mapvalues(from = c("1","2","3","4","5","6","7","8","9","-2","-3"), to = institution_highestlevel, warn_missing = FALSE )
+institutions_2016$UGOFFER <- factor(institutions_2016$UGOFFER) %>% plyr::mapvalues(from = c("1","2","-3"), to = institution_UG, warn_missing = FALSE )
+institutions_2016$GROFFER <- factor(institutions_2016$GROFFER) %>% plyr::mapvalues(from = c("1","2","-3"), to = institution_GR, warn_missing = FALSE )
+institutions_2016$HDEGOFR1 <- factor(institutions_2016$HDEGOFR1) %>% plyr::mapvalues(from = c("11","12","13","14","20","30","40","0","-3"), to = institution_highestGR, warn_missing = FALSE )
+institutions_2016$DEGGRANT <- factor(institutions_2016$DEGGRANT) %>% plyr::mapvalues(from = c("1","2","-3"), to = institution_degreegrantingstatus, warn_missing = FALSE )
+
+# 
 
 # Create seperate lists for closed and open institutions. Closed institutuions have a date value in the CLOSEDAT field so searching for a "/" is a good way to distinguish between the two.
-closed_institutions_2016 <- Institutions2016 %>% filter(str_detect(CLOSEDAT,"/"))
-open_Institutions_2016 <- anti_join(Institutions2016,closed_institutions_2016, by = "UNITID")
+closed_institutions_2016 <- institutions_2016 %>% filter(str_detect(CLOSEDAT,"/"))
+open_institutions_2016 <- anti_join(institutions_2016,closed_institutions_2016, by = "UNITID")
+
+# Define compartive markets
+institutions_2016_utah <- filter(open_institutions_2016, STABBR %in% market_state)
+institutions_2016_peer <- filter(open_institutions_2016, UNITID %in% market_peer_inst)
 
 #Institutions2016 <- select(Institutions2016, "INSTNM","ADDR","CITY","STABBR","ZIP","FIPS","OBEREG","WEBADDR","NPRICURL","OPEID","OPEFLAG")
 #Institutions2016_Utah <- filter(Institutions2016, STABBR=="UT")
 
 ```
+
+```{R Distance Education}
+onlineprogs_2016 <- read.csv("~/westminster_program_research/IPEDS/C2016DEP.txt")
+```
+
 
   
 <!--- Map IPED and OES data --->
