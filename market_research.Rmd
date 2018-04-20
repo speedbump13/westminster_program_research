@@ -48,18 +48,19 @@ Table list for IPEDS:
   C2014_C: Number of students receiving awards/degrees, by award level
   C2014DEP: Number of programs offered and number of programs offered via distance 
   education
+  FLAGS<YYYY>: Student response information
 --->
 
-```{R Target Markets}
-# Vector of state(s)
-market_state <- c("UT")
 
-# Vector of IPED UNITID(s) for peer institution(s)
-market_peer_inst <- c(180106,209065)
-```
 
-```{R Institution Characteristics}
+## IPED Data codes and descriptions
+IPEDS data is represented in numeric form to conserve space. This section maps the numeric values to their corresponding text values for better readability.
 
+```{R Data Mapping}
+# CIP code mapping to descriptions
+CIP_mapping <- read_excel("~/westminster_program_research/CIP_mapping.xlsx")
+
+# Institutional Characteristics
 institution_level <- c("4 year or more","2 to 4 year","less than 2 year","unkown")
 institution_type <- c("Public","Private not-for profit","Private for-profit","not available")
 institution_highestlevel <- c("Award of less than one academic year","At least 1, but less than 2 academic yrs","Associate's degree","At least 2, but less than 4 academic yrs","Bachelor's degree","Postbaccalaureate certificate","Master's degree","Post-master's certificate","Doctor's degree","Not applicable, first-professional only","{Not available}")
@@ -69,9 +70,30 @@ institution_GR <- c("Graduate degree or certificate offering","No graduate offer
 institution_highestGR <- c("Doctor's degree - research/scholarship and professional practice","Doctor's degree - research/scholarship","Doctor's degree -  professional practice","Doctor's degree - other","Master's degree","Bachelor's degree","Associate's degree","Non-degree granting","Not available")
 institution_degreegrantingstatus <- c("Degree-granting","Nondegree-granting, primarily postsecondary","Not available")
 
+# Institutions variables needed for analysis
 institution_columns <- c("UNITID","INSTNM","ADDR","CITY","STABBR","ZIP","FIPS","OBEREG","WEBADDR","SECTOR","ICLEVEL","CONTROL","HLOFFER","UGOFFER","GROFFER","HDEGOFR1","DEGGRANT","CLOSEDAT")
 
+
+
 ```
+
+## Target Markets
+
+
+```{R Target Markets}
+# Vector of state(s)
+market_state <- c("UT")
+
+# vector of IPED UNITID for home Institution
+home_institution <- c(230807)
+
+# Vector of IPED UNITID(s) for peer institution(s)
+market_peer_inst <- c(180106,209065)
+
+# Comparision institutions
+comparison_inst <-c(home_institution,market_peer_inst)
+```
+
 
 
 ```{R Institutions 2016}
@@ -92,32 +114,22 @@ institutions_2016$GROFFER <- factor(institutions_2016$GROFFER) %>% plyr::mapvalu
 institutions_2016$HDEGOFR1 <- factor(institutions_2016$HDEGOFR1) %>% plyr::mapvalues(from = c("11","12","13","14","20","30","40","0","-3"), to = institution_highestGR, warn_missing = FALSE )
 institutions_2016$DEGGRANT <- factor(institutions_2016$DEGGRANT) %>% plyr::mapvalues(from = c("1","2","-3"), to = institution_degreegrantingstatus, warn_missing = FALSE )
 
-# 
+
 
 # Create seperate lists for closed and open institutions. Closed institutuions have a date value in the CLOSEDAT field so searching for a "/" is a good way to distinguish between the two.
 closed_institutions_2016 <- institutions_2016 %>% filter(str_detect(CLOSEDAT,"/"))
 open_institutions_2016 <- anti_join(institutions_2016,closed_institutions_2016, by = "UNITID")
 
+# For our purposes, we are only interested in degree granting institutions
+
+
 # Define compartive markets
-institutions_2016_utah <- filter(open_institutions_2016, STABBR %in% market_state)
-institutions_2016_peer <- filter(open_institutions_2016, UNITID %in% market_peer_inst)
+institutions_2016_homestate <- filter(open_institutions_2016, STABBR %in% market_state) %>% filter(DEGGRANT == "Degree-granting")
+institutions_2016_peergroup <- filter(open_institutions_2016, UNITID %in% comparison_inst)
 
-#Institutions2016 <- select(Institutions2016, "INSTNM","ADDR","CITY","STABBR","ZIP","FIPS","OBEREG","WEBADDR","NPRICURL","OPEID","OPEFLAG")
-#Institutions2016_Utah <- filter(Institutions2016, STABBR=="UT")
+
 
 ```
-
-```{R Distance Education}
-onlineprogs_2016 <- read.csv("~/westminster_program_research/IPEDS/C2016DEP.txt")
-```
-
-
-  
-<!--- Map IPED and OES data --->
-
-<!--- Define state and local institutions --->
-
-
 
 ## Degree Completion
 Information about degree completion was obtain through The Integrated Postsecondary Education Data System (IPEDS) from https://nces.ed.gov/ipeds/use-the-data/download-access-database.
@@ -134,19 +146,55 @@ http://bluechipsolutions.com/BI_University/CIP_Codes_Definition_and_Link_to_Down
 ```{R Program Completion}
 #IPEDS_2014 <- read.csv("~/westminster_program_research/IPEDS/C2014_A.txt", header = TRUE)
 #IPEDS_2015 <- read.csv("~/westminster_program_research/IPEDS/C2015_A.txt", header = TRUE)
-IPEDS_2016 <- read.csv("~/westminster_program_research/IPEDS/C2016_A.txt", header = TRUE)
+
+# Set the data types for the IPEDS completion data
+temp <- c(rep("integer",34))
+temp[2] <- "character"
+IPEDS_2016 <- read.csv("~/westminster_program_research/IPEDS/C2016_A.txt", header = TRUE, colClasses = temp)
 IPEDS_2016$Year <- "2016"
 
 prog_completion <- IPEDS_2016 %>% select("UNITID","CIPCODE","MAJORNUM","CIPCODE","AWLEVEL","CTOTALT")
-prog_top_completed <- prog_completion %>%
-  group_by(CIPCODE) %>%
-  summarise(total = sum(CTOTALT)) %>%
-  top_n(20, total) %>%
-  arrange(desc(total)) %>%
-  View()
+#prog_top_completed <- prog_completion %>%
+#  group_by(CIPCODE) %>%
+#  summarise(total = sum(CTOTALT)) %>%
+#  top_n(20, total) %>%
+#  arrange(desc(total)) %>%
+#  View()
 
+prog_completion_peer <- prog_completion %>% filter(UNITID %in% institutions_2016_peergroup$UNITID)
+prog_completion_state <- prog_completion %>% filter(UNITID %in% institutions_2016_homestate$UNITID)
 
 ```
+
+
+
+
+
+
+
+```{R Program Offerings 2016}
+program_offerings_2016 <- read.csv("~/westminster_program_research/IPEDS/IC2016.txt")
+
+```
+
+
+
+
+```{R Distance Education}
+temp <- c(rep("integer",26))
+temp[2] <- "character"
+onlineprogs_2016 <- read.csv("~/westminster_program_research/IPEDS/C2016DEP.txt", header = TRUE, colClasses = temp)
+```
+
+
+  
+<!--- Map IPED and OES data --->
+
+<!--- Define state and local institutions --->
+
+
+
+
 
 
 
