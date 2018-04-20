@@ -28,6 +28,9 @@ percent_change <- function(num1, num2)  {
 ```
 
 
+
+
+
 Questions to answer:
 
 * What programs or certificates would adult learners be interested in?
@@ -37,6 +40,20 @@ Questions to answer:
 + What degrees or certificates might be interesting to those who are looking for self-fulfillment?
 
 There is an assumption that the programs will be online.
+
+
+## Degree Completion
+Information about degree completion was obtain through The Integrated Postsecondary Education Data System (IPEDS) from https://nces.ed.gov/ipeds/use-the-data/download-access-database.
+
+http://bluechipsolutions.com/BI_University/CIP_Codes_Definition_and_Link_to_Download_to_Excel_or_Access.htm
+
+*Questions:
++ What trends exist in degrees/certifictes granted (C2016A)? This will give us an idea of what is growing.
++ What programs are offered and in what format (C2016DEP)?
++ What are local competitors doing in those areas?
++ What does the online/on-campus landscape look like?
+
+
 
 <!---
 Table list for IPEDS:
@@ -78,8 +95,6 @@ institution_columns <- c("UNITID","INSTNM","ADDR","CITY","STABBR","ZIP","FIPS","
 ```
 
 ## Target Markets
-
-
 ```{R Target Markets}
 # Vector of state(s)
 market_state <- c("UT")
@@ -131,16 +146,7 @@ institutions_2016_peergroup <- filter(open_institutions_2016, UNITID %in% compar
 
 ```
 
-## Degree Completion
-Information about degree completion was obtain through The Integrated Postsecondary Education Data System (IPEDS) from https://nces.ed.gov/ipeds/use-the-data/download-access-database.
 
-http://bluechipsolutions.com/BI_University/CIP_Codes_Definition_and_Link_to_Download_to_Excel_or_Access.htm
-
-*Questions:
-+ What trends exist in degrees/certifictes granted (C2016A)? This will give us an idea of what is growing.
-+ What programs are offered and in what format (C2016DEP)?
-+ What are local competitors doing in those areas?
-+ What does the online/on-campus landscape look like?
 
 <!--- load IPED completion data --->
 ```{R Program Completion}
@@ -149,11 +155,17 @@ http://bluechipsolutions.com/BI_University/CIP_Codes_Definition_and_Link_to_Down
 
 # Set the data types for the IPEDS completion data
 temp <- c(rep("integer",34))
-temp[2] <- "character"
+temp[2] <- "factor"
 IPEDS_2016 <- read.csv("~/westminster_program_research/IPEDS/C2016_A.txt", header = TRUE, colClasses = temp)
 IPEDS_2016$Year <- "2016"
+IPEDS_2016$CIPDESC <- IPEDS_2016$CIPCODE %>% plyr::mapvalues(from = CIP_mapping$CIP_code, to = CIP_mapping$CIP_name)
 
-prog_completion <- IPEDS_2016 %>% select("UNITID","CIPCODE","MAJORNUM","CIPCODE","AWLEVEL","CTOTALT")
+home_institution_programs <- IPEDS_2016 %>% filter(IPEDS_2016$UNITID %in% home_institution)
+
+
+
+#prog_completion <- IPEDS_2016 %>% select("UNITID","CIPCODE","MAJORNUM","CIPCODE","AWLEVEL","CTOTALT")
+prog_completion <- IPEDS_2016
 #prog_top_completed <- prog_completion %>%
 #  group_by(CIPCODE) %>%
 #  summarise(total = sum(CTOTALT)) %>%
@@ -161,22 +173,11 @@ prog_completion <- IPEDS_2016 %>% select("UNITID","CIPCODE","MAJORNUM","CIPCODE"
 #  arrange(desc(total)) %>%
 #  View()
 
+
 prog_completion_peer <- prog_completion %>% filter(UNITID %in% institutions_2016_peergroup$UNITID)
 prog_completion_state <- prog_completion %>% filter(UNITID %in% institutions_2016_homestate$UNITID)
 
 ```
-
-
-
-
-
-
-
-```{R Program Offerings 2016}
-program_offerings_2016 <- read.csv("~/westminster_program_research/IPEDS/IC2016.txt")
-
-```
-
 
 
 
