@@ -16,6 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(readxl)
 library(dplyr)
 library(stringr)
+library(tidyr)
 ```
 
 
@@ -75,7 +76,18 @@ IPEDS data is represented in numeric form to conserve space. This section maps t
 
 ```{R Data Mapping}
 # CIP code mapping to descriptions
-CIP_mapping <- read_excel("~/westminster_program_research/CIP_mapping.xlsx")
+# Obtained from https://nces.ed.gov/ipeds/cipcode/crosswalk.aspx?y=55
+
+#CIP_mapping <- read_excel("~/westminster_program_research/CIP_mapping.xlsx")
+CIP_mapping <- read.csv("~/westminster_program_research/CIP_codes.csv", colClasses = c("character","character","factor","factor","character","character")) %>%
+  select(Current.code,Current.title)
+  
+names(CIP_mapping) <- c("CIP_code","CIP_name")
+
+# add grand total summary line to CIP mappings
+CIP_mapping <- rbind(CIP_mapping,c("99","Grand Total"))
+
+
 
 # Institutional Characteristics
 institution_level <- c("4 year or more","2 to 4 year","less than 2 year","unkown")
@@ -86,6 +98,9 @@ institution_UG <- c("Undergraduate degree or certificate offering","No undergrad
 institution_GR <- c("Graduate degree or certificate offering","No graduate offering","Not available")
 institution_highestGR <- c("Doctor's degree - research/scholarship and professional practice","Doctor's degree - research/scholarship","Doctor's degree -  professional practice","Doctor's degree - other","Master's degree","Bachelor's degree","Associate's degree","Non-degree granting","Not available")
 institution_degreegrantingstatus <- c("Degree-granting","Nondegree-granting, primarily postsecondary","Not available")
+
+# Award/Degree granted
+award_level <- data.frame(stringsAsFactors = FALSE, code = c(15,12,3,5,7,17,18,19,13,1,2,4,14,6,8), label = c("Degrees/certificates total","Degrees total","Associate's degree","Bachelor's degree","Master's degree","Doctor's degree - research/scholarship ","Doctor's degree - professional practice ","Doctor's degree - other ","Certificates below the baccalaureate total","Award of less than 1 academic year","Award of at least 1 but less than 2 academic years","Award of at least 2 but less than 4 academic years","Certificates above the baccalaureate total","Postbaccalaureate certificate","Post-master's certificate"))
 
 # Institutions variables needed for analysis
 institution_columns <- c("UNITID","INSTNM","ADDR","CITY","STABBR","ZIP","FIPS","OBEREG","WEBADDR","SECTOR","ICLEVEL","CONTROL","HLOFFER","UGOFFER","GROFFER","HDEGOFR1","DEGGRANT","CLOSEDAT")
@@ -155,17 +170,43 @@ institutions_2016_peergroup <- filter(open_institutions_2016, UNITID %in% compar
 
 # Set the data types for the IPEDS completion data
 temp <- c(rep("integer",34))
-temp[2] <- "factor"
-IPEDS_2016 <- read.csv("~/westminster_program_research/IPEDS/C2016_A.txt", header = TRUE, colClasses = temp)
-IPEDS_2016$Year <- "2016"
-IPEDS_2016$CIPDESC <- IPEDS_2016$CIPCODE %>% plyr::mapvalues(from = CIP_mapping$CIP_code, to = CIP_mapping$CIP_name)
-
-home_institution_programs <- IPEDS_2016 %>% filter(IPEDS_2016$UNITID %in% home_institution)
+temp[c(2,4)] <- "factor"
 
 
+# Import 2016 Awards/degrees conferred
+conferred_2016 <- read.csv("~/westminster_program_research/IPEDS/C2016_A.txt", header = TRUE, colClasses = temp)
+conferred_2016$Year <- "2016"
+conferred_2016$CIPDESC <- conferred_2016$CIPCODE %>% plyr::mapvalues(from = CIP_mapping$CIP_code, to = CIP_mapping$CIP_name)
+conferred_2016$AWLEVEL <- conferred_2016$AWLEVEL %>% plyr::mapvalues(from = award_level$code, to = award_level$label)
 
-#prog_completion <- IPEDS_2016 %>% select("UNITID","CIPCODE","MAJORNUM","CIPCODE","AWLEVEL","CTOTALT")
-prog_completion <- IPEDS_2016
+home_institution_programs <- conferred_2016 %>%
+  filter(conferred_2016$UNITID %in% home_institution) %>%
+  filter((AWLEVEL %in% c("Degrees total","Certificates above the baccalaureate total"))) %>%
+  select(CIPCODE,MAJORNUM,AWLEVEL,CIPDESC,CTOTALT) %>%
+  spread(MAJORNUM, CTOTALT, fill = 0) %>%
+  unique()
+
+home_institution_programs$totalconferred <- home_institution_programs$`1` + home_institution_programs$`2`
+
+home_institution_programs <- select(home_institution_programs, CIPCODE,AWLEVEL,CIPDESC,totalconferred)
+  
+
+
+
+  
+
+
+
+
+home_institution_programs <- conferred_2016 %>%
+  filter(conferred_2016$UNITID %in% home_institution) %>%
+  filter(!(AWLEVEL %in% c("Degrees total","Degrees/certificates total"))) %>%
+  select(CIPCODE,AWLEVEL,CIPDESC) %>% unique()
+
+
+
+#prog_completion <- conferred_2016 %>% select("UNITID","CIPCODE","MAJORNUM","CIPCODE","AWLEVEL","CTOTALT")
+prog_completion <- conferred_2016
 #prog_top_completed <- prog_completion %>%
 #  group_by(CIPCODE) %>%
 #  summarise(total = sum(CTOTALT)) %>%
